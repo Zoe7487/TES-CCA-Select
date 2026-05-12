@@ -1,237 +1,236 @@
-import React, { useState } from 'react';
-import { 
-  Lock, 
-  Unlock, 
-  CheckCircle2, 
-  XCircle, 
-  Clock, 
-  AlertCircle, 
-  ArrowRight,
-  RefreshCw,
-  UserCheck,
-  ClipboardList
-} from 'lucide-react';
-
-const App = () => {
-  const [activePhase, setActivePhase] = useState(null);
-
-  const phases = [
-    {
-      id: 1,
-      title: "1. 開放選課",
-      subtitle: "Open Enrollment",
-      color: "blue",
-      items: [
-        {
-          title: "正取 (Confirmed)",
-          desc: "限選 1 個班級",
-          status: "cancellable",
-          note: "選中後可隨時取消"
-        },
-        {
-          title: "候補 (Waitlist)",
-          desc: "可選多個班級",
-          status: "cancellable",
-          note: "候補中可隨時取消"
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TES CCA 邏輯概念圖</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc;
         }
-      ]
-    },
-    {
-      id: 2,
-      title: "2. 選課 & 開班中",
-      subtitle: "Enrollment & Ongoing",
-      color: "purple",
-      items: [
-        {
-          title: "已選上",
-          desc: "視同開班中正取",
-          status: "locked",
-          note: "系統顯示不能取消"
-        },
-        {
-          title: "申請加入 (Application)",
-          desc: "一次限申請一個班級",
-          status: "dynamic",
-          subItems: [
-            { label: "申請狀態", action: "可取消", type: "success" },
-            { label: "同意申請", action: "不可取消 (視同正取)", type: "danger" },
-            { label: "拒絕申請", action: "紀錄後可再報他班", type: "info" }
-          ]
-        }
-      ]
-    },
-    {
-      id: 3,
-      title: "3. 開班中",
-      subtitle: "Classes Ongoing",
-      color: "indigo",
-      items: [
-        {
-          title: "已選上",
-          desc: "正式名單",
-          status: "locked",
-          note: "不能取消；可另報『開放選課』或『選課&開班中』班級"
-        },
-        {
-          title: "未候補上",
-          desc: "列於候補名單",
-          status: "locked",
-          note: "不能取消；可由後台手動補為正取",
-          action: "補上後視同『已選上』"
-        }
-      ]
-    }
-  ];
 
-  const StatusBadge = ({ type }) => {
-    if (type === "cancellable") return (
-      <span className="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold border border-green-200">
-        <Unlock size={12} /> 可取消
-      </span>
-    );
-    if (type === "locked") return (
-      <span className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold border border-red-200">
-        <Lock size={12} /> 不可取消
-      </span>
-    );
-    return (
-      <span className="flex items-center gap-1 px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold border border-amber-200">
-        <RefreshCw size={12} /> 狀態動態切換
-      </span>
-    );
-  };
+        .phase-card {
+            transition: transform 0.3s ease;
+        }
 
-  return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <header className="mb-10 text-center">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 mb-4 flex items-center justify-center gap-3">
-            <ClipboardList className="text-blue-600" size={36} />
-            TES CCA 邏輯概念圖
-          </h1>
-          <p className="text-slate-500 max-w-2xl mx-auto">
-            此圖表說明選課系統在不同階段下的狀態轉換、取消規則以及互斥邏輯。
-          </p>
+        .phase-card:hover {
+            transform: scale(1.05);
+            z-index: 20;
+        }
+
+        .connector::after {
+            content: '';
+            position: absolute;
+            right: -1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='m12 5 7 7-7 7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            z-index: 10;
+        }
+
+        @media (max-width: 1024px) {
+            .connector::after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="mb-10 text-center">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 mb-4 flex items-center justify-center gap-3">
+                <i data-lucide="clipboard-list" class="text-blue-600 w-10 h-10"></i>
+                TES CCA 邏輯概念圖
+            </h1>
+            <p class="text-slate-500 max-w-2xl mx-auto">
+                此圖表說明選課系統在不同階段下的狀態轉換、取消規則以及互斥邏輯。
+            </p>
         </header>
 
-        {/* Global Rules Banner */}
-        <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="text-red-500 shrink-0" size={20} />
-              <div>
-                <h3 className="font-bold text-red-800">互斥規則 (Mutual Exclusivity)</h3>
-                <p className="text-red-700 text-sm">
-                  「開放選課」與「選課&開班中」的班級不能同時選擇，系統限制僅能擇其一。
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-sm">
-            <div className="flex items-start gap-3">
-              <UserCheck className="text-blue-500 shrink-0" size={20} />
-              <div>
-                <h3 className="font-bold text-blue-800">申請限制 (One at a time)</h3>
-                <p className="text-blue-700 text-sm">
-                  一次只能申請一個班級，必須等待該班級「同意」或「拒絕」後，方可再發起其他申請。
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Concept Map Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative">
-          {phases.map((phase, idx) => (
-            <div 
-              key={phase.id} 
-              className={`flex flex-col gap-4 transition-all duration-300 ${activePhase === phase.id ? 'scale-105' : ''}`}
-              onMouseEnter={() => setActivePhase(phase.id)}
-              onMouseLeave={() => setActivePhase(null)}
-            >
-              {/* Phase Header */}
-              <div className={`p-4 rounded-t-xl bg-${phase.color}-600 text-white shadow-lg`}>
-                <span className="text-xs opacity-80 uppercase tracking-widest font-bold">{phase.subtitle}</span>
-                <h2 className="text-xl font-bold">{phase.title}</h2>
-              </div>
-
-              {/* Items */}
-              <div className="bg-white rounded-b-xl shadow-md border border-slate-200 overflow-hidden flex-grow">
-                {phase.items.map((item, i) => (
-                  <div key={i} className={`p-5 ${i !== phase.items.length - 1 ? 'border-b border-slate-100' : ''}`}>
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-bold text-slate-800 text-lg">{item.title}</h3>
-                      <StatusBadge type={item.status} />
+        <!-- Global Rules Banner -->
+        <div class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm">
+                <div class="flex items-start gap-3">
+                    <i data-lucide="alert-circle" class="text-red-500 shrink-0 w-5 h-5"></i>
+                    <div>
+                        <h3 class="font-bold text-red-800">互斥規則 (Mutual Exclusivity)</h3>
+                        <p class="text-red-700 text-sm">
+                            「開放選課」與「選課&開班中」的班級不能同時選擇，系統限制僅能擇其一。
+                        </p>
                     </div>
-                    <p className="text-slate-600 text-sm mb-3 font-medium">
-                      {item.desc}
-                    </p>
-                    
-                    {item.note && (
-                      <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-50 p-2 rounded">
-                        <CheckCircle2 size={14} className="text-slate-400" />
-                        {item.note}
-                      </div>
-                    )}
-
-                    {item.action && (
-                      <div className="mt-2 flex items-center gap-2 text-xs text-indigo-600 font-semibold bg-indigo-50 p-2 rounded">
-                        <ArrowRight size={14} />
-                        {item.action}
-                      </div>
-                    )}
-
-                    {/* Sub-Items (Special for Application) */}
-                    {item.subItems && (
-                      <div className="mt-4 space-y-2">
-                        {item.subItems.map((sub, j) => (
-                          <div key={j} className="flex items-center justify-between text-xs p-2 rounded bg-slate-50 border border-slate-100">
-                            <span className="text-slate-700 font-medium">{sub.label}</span>
-                            <span className={`font-bold ${
-                              sub.type === 'danger' ? 'text-red-600' : 
-                              sub.type === 'success' ? 'text-green-600' : 'text-blue-600'
-                            }`}>
-                              {sub.action}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              
-              {/* Connector Arrows for Desktop */}
-              {idx < phases.length - 1 && (
-                <div className="hidden lg:flex absolute -right-6 top-1/2 -translate-y-1/2 z-10 text-slate-300">
-                  <ArrowRight size={32} />
                 </div>
-              )}
             </div>
-          ))}
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-sm">
+                <div class="flex items-start gap-3">
+                    <i data-lucide="user-check" class="text-blue-500 shrink-0 w-5 h-5"></i>
+                    <div>
+                        <h3 class="font-bold text-blue-800">申請限制 (One at a time)</h3>
+                        <p class="text-blue-700 text-sm">
+                            一次只能申請一個班級，必須等待該班級「同意」或「拒絕」後，方可再發起其他申請。
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        {/* Footer Legend */}
-        <footer className="mt-12 pt-8 border-t border-slate-200">
-          <div className="flex flex-wrap justify-center gap-8 text-sm text-slate-500">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              <span>允許使用者取消</span>
+        <!-- Concept Map Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 relative">
+            
+            <!-- Phase 1 -->
+            <div class="phase-card flex flex-col gap-4 relative connector">
+                <div class="p-4 rounded-t-xl bg-blue-600 text-white shadow-lg">
+                    <span class="text-xs opacity-80 uppercase tracking-widest font-bold">Open Enrollment</span>
+                    <h2 class="text-xl font-bold">1. 開放選課</h2>
+                </div>
+                <div class="bg-white rounded-b-xl shadow-md border border-slate-200 overflow-hidden flex-grow">
+                    <div class="p-5 border-b border-slate-100">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-slate-800 text-lg">正取 (Confirmed)</h3>
+                            <span class="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold border border-green-200">
+                                <i data-lucide="unlock" class="w-3 h-3"></i> 可取消
+                            </span>
+                        </div>
+                        <p class="text-slate-600 text-sm mb-3 font-medium">限選 1 個班級</p>
+                        <div class="flex items-center gap-2 text-xs text-slate-500 bg-slate-50 p-2 rounded">
+                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-slate-400"></i>
+                            選中後可隨時取消
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-slate-800 text-lg">候補 (Waitlist)</h3>
+                            <span class="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold border border-green-200">
+                                <i data-lucide="unlock" class="w-3 h-3"></i> 可取消
+                            </span>
+                        </div>
+                        <p class="text-slate-600 text-sm mb-3 font-medium">可選多個班級</p>
+                        <div class="flex items-center gap-2 text-xs text-slate-500 bg-slate-50 p-2 rounded">
+                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-slate-400"></i>
+                            候補中可隨時取消
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-              <span>鎖定中 (不可取消)</span>
-            </div>
-            <div className="flex items-center gap-2 border-l pl-8 border-slate-300">
-              <Clock size={16} />
-              <span>流程具備先後順序</span>
-            </div>
-          </div>
-        </footer>
-      </div>
-    </div>
-  );
-};
 
-export default App;
+            <!-- Phase 2 -->
+            <div class="phase-card flex flex-col gap-4 relative connector">
+                <div class="p-4 rounded-t-xl bg-purple-600 text-white shadow-lg">
+                    <span class="text-xs opacity-80 uppercase tracking-widest font-bold">Enrollment & Ongoing</span>
+                    <h2 class="text-xl font-bold">2. 選課 & 開班中</h2>
+                </div>
+                <div class="bg-white rounded-b-xl shadow-md border border-slate-200 overflow-hidden flex-grow">
+                    <div class="p-5 border-b border-slate-100">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-slate-800 text-lg">已選上</h3>
+                            <span class="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold border border-red-200">
+                                <i data-lucide="lock" class="w-3 h-3"></i> 不可取消
+                            </span>
+                        </div>
+                        <p class="text-slate-600 text-sm mb-3 font-medium">視同開班中正取</p>
+                        <div class="flex items-center gap-2 text-xs text-slate-500 bg-slate-50 p-2 rounded">
+                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-slate-400"></i>
+                            系統顯示不能取消
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-slate-800 text-lg">申請加入 (Application)</h3>
+                            <span class="flex items-center gap-1 px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold border border-amber-200">
+                                <i data-lucide="refresh-cw" class="w-3 h-3"></i> 狀態動態切換
+                            </span>
+                        </div>
+                        <p class="text-slate-600 text-sm mb-3 font-medium">一次限申請一個班級</p>
+                        <div class="mt-4 space-y-2">
+                            <div class="flex items-center justify-between text-xs p-2 rounded bg-slate-50 border border-slate-100">
+                                <span class="text-slate-700 font-medium">申請狀態</span>
+                                <span class="font-bold text-green-600">可取消</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs p-2 rounded bg-slate-50 border border-slate-100">
+                                <span class="text-slate-700 font-medium">同意申請</span>
+                                <span class="font-bold text-red-600">不可取消 (視同正取)</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs p-2 rounded bg-slate-50 border border-slate-100">
+                                <span class="text-slate-700 font-medium">拒絕申請</span>
+                                <span class="font-bold text-blue-600">紀錄後可再報他班</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 3 -->
+            <div class="phase-card flex flex-col gap-4 relative">
+                <div class="p-4 rounded-t-xl bg-indigo-600 text-white shadow-lg">
+                    <span class="text-xs opacity-80 uppercase tracking-widest font-bold">Classes Ongoing</span>
+                    <h2 class="text-xl font-bold">3. 開班中</h2>
+                </div>
+                <div class="bg-white rounded-b-xl shadow-md border border-slate-200 overflow-hidden flex-grow">
+                    <div class="p-5 border-b border-slate-100">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-slate-800 text-lg">已選上</h3>
+                            <span class="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold border border-red-200">
+                                <i data-lucide="lock" class="w-3 h-3"></i> 不可取消
+                            </span>
+                        </div>
+                        <p class="text-slate-600 text-sm mb-3 font-medium">正式名單</p>
+                        <div class="flex items-center gap-2 text-xs text-slate-500 bg-slate-50 p-2 rounded mb-2">
+                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-slate-400"></i>
+                            不能取消；可另報『開放選課』或『選課&開班中』班級
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-slate-800 text-lg">未候補上</h3>
+                            <span class="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold border border-red-200">
+                                <i data-lucide="lock" class="w-3 h-3"></i> 不可取消
+                            </span>
+                        </div>
+                        <p class="text-slate-600 text-sm mb-3 font-medium">列於候補名單</p>
+                        <div class="flex items-center gap-2 text-xs text-slate-500 bg-slate-50 p-2 rounded mb-1">
+                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-slate-400"></i>
+                            不能取消；可由後台手動補為正取
+                        </div>
+                        <div class="mt-2 flex items-center gap-2 text-xs text-indigo-600 font-semibold bg-indigo-50 p-2 rounded">
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            補上後視同『已選上』
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Legend -->
+        <footer class="mt-12 pt-8 border-t border-slate-200">
+            <div class="flex flex-wrap justify-center gap-8 text-sm text-slate-500">
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span>允許使用者取消</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <span>鎖定中 (不可取消)</span>
+                </div>
+                <div class="flex items-center gap-2 border-l pl-8 border-slate-300">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                    <span>流程具備先後順序</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
